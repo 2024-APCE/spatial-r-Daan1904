@@ -107,10 +107,52 @@ woody_map
 
 
 # plot the rainfall map
-ggplot() +
+rainy_map <- ggplot() +
+  tidyterra::geom_spatraster(data = rainfall) +
+  scale_fill_gradientn(colors = pal_zissou1,
+                       limits = c(264, 2500),
+                       oob = squish,
+                       name = "mm") +
+  tidyterra::geom_spatvector(data = protected_areas,
+                             fill = NA, linewidth = 0.5) +
+  tidyterra::geom_spatvector(data = studyarea,
+                             fill = NA, color = "red", linewidth = 1) +
+  tidyterra::geom_spatvector(data = rivers,
+                             color = "royalblue", linewidth = 0.75) +
+  tidyterra::geom_spatvector(data = lakes,
+                             fill = "blue") +
+  labs(title = "Average annual rainfall") +
+  coord_sf(xlimits, ylimits, datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+rainy_map
   
 
 # plot the elevation map
+elevation_map <- ggplot() +
+  tidyterra::geom_spatraster(data = elevation) +
+  scale_fill_gradientn(colors = terrain.colors(10),
+                       limits = c(500, 2100),
+                       oob = squish,
+                       name = "meter") +
+  tidyterra::geom_spatvector(data = protected_areas,
+                             fill = NA, linewidth = 0.5) +
+  tidyterra::geom_spatvector(data = studyarea,
+                             fill = NA, color = "red", linewidth = 1) +
+  tidyterra::geom_spatvector(data = rivers,
+                             color = "royalblue", linewidth = 0.75) +
+  tidyterra::geom_spatvector(data = lakes,
+                             fill = "blue") +
+  labs(title = "Elevation") +
+  coord_sf(xlimits, ylimits, datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+elevation_map
+
+woody_map + elevation_map + rainy_map
+
 
 # combine the different maps  into one composite map using the patchwork library
 # and save it to a high resolution png
