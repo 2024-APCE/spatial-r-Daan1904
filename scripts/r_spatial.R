@@ -79,8 +79,8 @@ plot(protected_areas, add = T)
 
 
 # set the limits of the map to show (xmin, xmax, ymin, ymax in utm36 coordinates)
-xlimits<-c(550000,900000)
-ylimits<-c(9600000,9950000)
+xlimits<-c(760000, 810000)
+ylimits<-c(9660000,9690000)
 
 
 # plot the woody biomass map that you want to predict
@@ -110,7 +110,7 @@ woody_map
 rainy_map <- ggplot() +
   tidyterra::geom_spatraster(data = rainfall) +
   scale_fill_gradientn(colors = pal_zissou1,
-                       limits = c(264, 2500),
+                       limits = c(400, 1200),
                        oob = squish,
                        name = "mm") +
   tidyterra::geom_spatvector(data = protected_areas,
@@ -133,7 +133,7 @@ rainy_map
 elevation_map <- ggplot() +
   tidyterra::geom_spatraster(data = elevation) +
   scale_fill_gradientn(colors = terrain.colors(10),
-                       limits = c(500, 2100),
+                       limits = c(1000, 3250),
                        oob = squish,
                        name = "meter") +
   tidyterra::geom_spatvector(data = protected_areas,
@@ -151,7 +151,7 @@ elevation_map <- ggplot() +
   ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
 elevation_map
 
-woody_map + elevation_map + rainy_map
+woody_map + elevation_map + rainy_map + plot_layout(ncol = 2)
 
 
 # combine the different maps  into one composite map using the patchwork library
