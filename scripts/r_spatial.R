@@ -23,7 +23,10 @@ library(patchwork)  # for combining multiple ggplots in one panel plot
 # also see https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
 # Base R palettes
 barplot(rep(1,10), col = grey.colors(10))
-barplot(rep(1,10), col = rev(topo.colors(10))) # rev turns the scale arround
+mycolors <- c("red", "white", "blue")
+mycolors
+barplot(rep(1,10), col = rev(topo.colors(10))) # rev turns the scale around
+#rev means reverse the palette order
 barplot(rep(1,10), col = rev(terrain.colors(10)))
 library(RColorBrewer) 
 RColorBrewer::display.brewer.all()
@@ -33,7 +36,6 @@ barplot(rep(1,10), col = RColorBrewer::brewer.pal(10, "BrBG"))
 library(viridis)
 barplot(rep(1,10), col = viridis::viridis(10))
 barplot(rep(1,10), col = viridis::plasma(10))
-barplot(rep(1,10), col = viridis::heat(10))
 viridis::plasma(10)
 library(wesanderson)
 barplot(rep(1,10), col = rev(wesanderson::wes_palette("Zissou1", 10, type = "continuous")))
@@ -41,16 +43,21 @@ pal_zissou1<-rev(wesanderson::wes_palette("Zissou1", 10, type = "continuous"))
 pal_zissou2<-wesanderson::wes_palette("Zissou1", 10, type = "continuous")
 pal_zissou1
 
+
 # load the vector data for the whole ecosystem
+#the dot in the path means the current working directory
 sf::st_layers("./2022_protected_areas/protected_areas.gpkg")
 protected_areas<-terra::vect("./2022_protected_areas/protected_areas.gpkg",
             layer="protected_areas_2022") # read protected area boundaries)
-sf::st_layers("./2022_rivers/rivers_hydrosheds.gpkg")
-rivers<-terra::vect("./2022_rivers/rivers_hydrosheds.gpkg",
+
+sf::st_layers("./rivers/rivers_hydrosheds.gpkg")
+rivers<-terra::vect("./rivers/rivers_hydrosheds.gpkg",
                     layer="rivers_hydrosheds")
+
 sf::st_layers("./lakes/lakes.gpkg")
 lakes<-terra::vect("./lakes/lakes.gpkg",
                    layer="lakes")  
+
 sf::st_layers("./studyarea/studyarea.gpkg")
 studyarea<-terra::vect("./studyarea/studyarea.gpkg",
                               layer="my_study_area")
@@ -64,15 +71,44 @@ elevation<-terra::rast("./2023_elevation/elevation_90m.tif")
 
 # inspect the data 
 class(protected_areas)
+class(elevation)
+
+plot(protected_areas)
+plot(elevation)
+plot(protected_areas, add = T)
 
 
 # set the limits of the map to show (xmin, xmax, ymin, ymax in utm36 coordinates)
 xlimits<-c(550000,900000)
 ylimits<-c(9600000,9950000)
 
+
 # plot the woody biomass map that you want to predict
+woody_map <- ggplot() +
+  tidyterra::geom_spatraster(data = woodybiom) +
+  scale_fill_gradientn(colors = rev(terrain.colors(6)),
+                       limits = c(0.77, 6.55),
+                       oob = squish,
+                       name = "TBA/ha") +
+  tidyterra::geom_spatvector(data = protected_areas,
+                             fill = NA, linewidth = 0.5) +
+  tidyterra::geom_spatvector(data = studyarea,
+                             fill = NA, color = "red", linewidth = 1) +
+  tidyterra::geom_spatvector(data = rivers,
+                             color = "royalblue", linewidth = 0.75) +
+  tidyterra::geom_spatvector(data = lakes,
+                             fill = "blue") +
+  labs(title = "Woody biomass") +
+  coord_sf(xlimits, ylimits, datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+woody_map
+
 
 # plot the rainfall map
+ggplot() +
+  
 
 # plot the elevation map
 
