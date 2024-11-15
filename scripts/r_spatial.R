@@ -134,7 +134,7 @@ rainy_map
 elevation_map <- ggplot() +
   tidyterra::geom_spatraster(data = elevation) +
   scale_fill_gradientn(colors = terrain.colors(10),
-                       limits = c(1000, 3250),
+                       limits = c(500, 2500),
                        oob = squish,
                        name = "meter") +
   tidyterra::geom_spatvector(data = protected_areas,
@@ -165,6 +165,7 @@ ggsave("composite_map.png", width = 20, height = 10, dpi = 600)
 xlimits<-sf::st_bbox(studyarea)[c(1,3)]
 ylimits<-sf::st_bbox(studyarea)[c(2,4)]
 saExt<-terra::ext(studyarea)
+saExt
 
 
 # crop the woody biomass to the extent of the studyarea
@@ -198,27 +199,6 @@ woody_map_sa
 
 
 # make maps also for the other layers that you found
-rainy_map_sa <- ggplot() +
-  tidyterra::geom_spatraster(data = rainfall) +
-  scale_fill_gradientn(colors = pal_zissou1,
-                       limits = c(400, 1200),
-                       oob = squish,
-                       name = "mm") +
-  tidyterra::geom_spatvector(data = protected_areas,
-                             fill = NA, linewidth = 0.5) +
-  tidyterra::geom_spatvector(data = studyarea,
-                             fill = NA, color = "red", linewidth = 1) +
-  tidyterra::geom_spatvector(data = rivers,
-                             color = "royalblue", linewidth = 0.75) +
-  tidyterra::geom_spatvector(data = lakes,
-                             fill = "blue") +
-  labs(title = "Average annual rainfall") +
-  coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
-rainy_map_sa
-
 elevation_map_sa <- ggplot() +
   tidyterra::geom_spatraster(data = elevation) +
   scale_fill_gradientn(colors = terrain.colors(10),
@@ -240,6 +220,35 @@ elevation_map_sa <- ggplot() +
   ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
 elevation_map_sa
 
+# plot rainfall map for the study area
+# first you need to increase the raster resolution to 30 m
+# Define the extent and resolution for the new raster
+rainfall_30m <- rast(terra::ext(rainfall), resolution = 30, crs = crs(rainfall))
+# Resample the raster to 30m resolution
+rainfall_30m <- terra::resample(rainfall, rainfall_30m, method = "bilinear")  
+rainfall_sa<-terra::crop(rainfall_30m,saExt) # crop to study area
+
+rainfall_sa <- ggplot() +
+  tidyterra::geom_spatraster(data = rainfall_30m) +
+  scale_fill_gradientn(colors = pal_zissou1,
+                       limits = c(400, 1200),
+                       oob = squish,
+                       name = "mm") +
+  tidyterra::geom_spatvector(data = protected_areas,
+                             fill = NA, linewidth = 0.5) +
+  tidyterra::geom_spatvector(data = studyarea,
+                             fill = NA, color = "red", linewidth = 1) +
+  tidyterra::geom_spatvector(data = rivers,
+                             color = "royalblue", linewidth = 0.75) +
+  tidyterra::geom_spatvector(data = lakes,
+                             fill = "blue") +
+  labs(title = "Average annual rainfall") +
+  coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+rainfall_sa
+
 fertility_map_sa <- ggplot() +
   tidyterra::geom_spatraster(data = cec_map_sa) +
   scale_fill_gradientn(colors = rev(terrain.colors(6)),
@@ -254,7 +263,7 @@ fertility_map_sa <- ggplot() +
                              color = "royalblue", linewidth = 0.75) +
   tidyterra::geom_spatvector(data = lakes,
                              fill = "blue") +
-  labs(title = "Soil fertility") +
+  labs(title = "Soil fertility (CEC)") +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank()) +
@@ -263,7 +272,7 @@ fertility_map_sa
 
 
 woody_map_sa + elevation_map_sa + rainy_map_sa + fertility_map_sa + patchwork::plot_layout(ncol = 2)
-ggsave("composite_map_sa.png", width = 20, height = 10, dpi = 600)
+ggsave("plots/composite_map_sa.png", width = 20, height = 10, dpi = 600)
 
 
 # create 500 random points in our study area
