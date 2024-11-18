@@ -73,6 +73,8 @@ fertility <- terra::rast("./_MyData/CEC_5_15cm.tif")
 landform_sa<-terra::rast("./_MyData/landforms.tif")
 landform_hills_sa<-terra::rast("./_MyData/hills.tif")
 copernicus_tree_cover_sa <- terra::rast("./_MyData/copernicus_tree_cover.tif")
+NDVI_all_sa <- terra::rast("./_MyData/NDVI.tif")
+NDVI_sa <- NDVI_all_sa$NDVI
 hillshade<-terra::rast("./2023_elevation/hillshade_z5.tif")
 
 # inspect the data 
@@ -374,12 +376,12 @@ landform_hillmap_sa<-ggplot() +
   ggspatial::annotation_scale(location="bl",width_hint=0.2)
 landform_hillmap_sa
 
-copernicus_tree_cover_map_sa <- ggplot() + 
+copernicus_tree_cover_map_sa <- ggplot() +
   tidyterra::geom_spatraster(data=copernicus_tree_cover_sa) +
   scale_fill_gradientn(colours=RColorBrewer::brewer.pal(n = 9, name = "Greens"),
                        limits=c(0,100),
                        oob=squish,
-                       name="procentage %") +
+                       name="percentage %") +
   tidyterra::geom_spatvector(data=protected_areas,color="#4D4D4D",
                              fill=NA, linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
@@ -393,8 +395,31 @@ copernicus_tree_cover_map_sa <- ggplot() +
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl", width_hint = 0.5)  
+  ggspatial::annotation_scale(location="bl", width_hint = 0.5)
 copernicus_tree_cover_map_sa
+
+#NDVI
+NDVI_map_sa <- ggplot() + 
+  tidyterra::geom_spatraster(data= NDVI_sa) +
+  scale_fill_gradientn(colours=RColorBrewer::brewer.pal(n = 9, name = "Greens"),
+                       limits=c(0,0.5),
+                       oob=squish,
+                       name="NDVI") +
+  tidyterra::geom_spatvector(data=protected_areas,color="#4D4D4D",
+                             fill=NA, linewidth=0.5) +
+  tidyterra::geom_spatvector(data=lakes,
+                             fill="#458EC8") +
+  tidyterra::geom_spatvector(data=rivers,
+                             color="#3773A4") +
+  tidyterra::geom_spatvector(data=studyarea,
+                             fill=NA, color="#F11B00", linewidth=0.7) +
+  labs(title="NDVI") +
+  coord_sf(xlimits,ylimits,expand=F,
+           datum = sf::st_crs(32736)) +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  ggspatial::annotation_scale(location="bl", width_hint = 0.5)
+NDVI_map_sa
 
 # core_protected_areas  map 
 r<-terra::rast("./_MyData/CoreProtectedAreas.tif") 
@@ -490,6 +515,9 @@ treecover_points <- terra::extract(copernicus_tree_cover_sa, rpoints) |>
   as_tibble() |>
   dplyr::rename(tree_cover="tree-coverfraction")
 treecover_points
+NDVI_points <- terra::extract(NDVI_sa, rpoints) |> 
+  as_tibble() 
+NDVI_points
 
 
 # merge the different variable into a single table
@@ -498,7 +526,7 @@ pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
                  rainfall_points[,2], 
                  cec_points[,2],burnfreq_points[,2],
                  landform_points[,2], treecover_points[,2],
-                 woody_points[,2]) |>
+                 NDVI_points[,2], woody_points[,2]) |>
   as_tibble()
 pointdata2 <- pointdata[complete.cases(pointdata),]
 pointdata2
@@ -523,7 +551,7 @@ psych::pairs.panels(
 # make long format
 names(pointdata2)
 pointdata_long<-pivot_longer(data=pointdata2,
-                             cols = dist2river:tree_cover, # all except woody
+                             cols = dist2river:NDVI, # all except woody
                              names_to ="pred_var",
                              values_to = "pred_val")
 pointdata_long
