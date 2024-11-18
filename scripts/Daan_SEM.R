@@ -26,27 +26,27 @@ SEMdatastd
 
 # make a pairs panel to inspect linearity of relations and expected normality of residuals
 psych::pairs.panels(SEMdata %>% select(dist2river, elevation, rainfall, cec,
-                                       burnfreq, hills, tree_cover, woody),
+                                       burnfreq, hills, NDVI, woody),
                     stars = T, ellipses = F)
 psych::pairs.panels(SEMdatastd %>% select(dist2river, elevation, rainfall, cec,
-                                          burnfreq, hills, tree_cover, woody),
+                                          burnfreq, hills, NDVI, woody),
                     stars = T, ellipses = F)
 
 
 # analyse the model (response ~ predictors) with a multiple regression approach
 multreg_std <- lm(woody ~ dist2river + elevation + rainfall + cec + burnfreq +
-                  hills + tree_cover, data = SEMdatastd)
+                  hills + NDVI, data = SEMdatastd)
 summary(multreg_std)
 
 # visualization of the result: 
 # browseURL("https://docs.google.com/presentation/d/1Q7uXC5Wiu0G4Xsp5uszCNHKOnf1IMI9doY-13Wbay4A/edit?usp=sharing")
 
-# Make a lavaan model as hypothesized in the Anderson et al 2007 paper and fit the model 
-woody_model <- "woody ~ tree_cover + cec + burnfreq + dist2river + rainfall
+# Make a lavaan model and fit the model 
+woody_model <- "woody ~ NDVI + cec + burnfreq + dist2river + rainfall
                 dist2river ~ rainfall + hills
                 burnfreq ~ rainfall
                 cec ~ rainfall + burnfreq + dist2river
-                tree_cover ~ rainfall + cec + dist2river
+                NDVI ~ rainfall + cec + dist2river+ elevation
                 rainfall ~ elevation
                 elevation ~ hills"
 woody_model
