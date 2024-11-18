@@ -544,7 +544,7 @@ summary(pca_result)
 # Plot the PCA
 plot(pca_result, scaling = 2, type="n", xlab="",ylab="")  # Use scaling = 1 for distance preservation, scaling = 2 for correlations
 # Add points for samples
-points(pca_result, display = "sites", pch=pointdata2$CorProtAr+1, col = pointdata2$hills+1, bg = "blue", cex = 1)
+points(pca_result, display = "sites", col = pointdata2$hills+1, bg = "blue", cex = 1)
 # Add arrows for variables
 arrows(0, 0, scores(pca_result, display = "species")[, 1], scores(pca_result, display = "species")[, 2], 
        length = 0.1, col = "red")
