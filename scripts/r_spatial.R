@@ -503,6 +503,9 @@ pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
 pointdata2 <- pointdata[complete.cases(pointdata),]
 pointdata2
 
+getwd()
+readr::write_csv(pointdata2, "pointdata.csv")
+
 
 # plot how woody cover is predicted by different variables
 # Create a correlation panel plot
