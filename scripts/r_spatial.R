@@ -473,7 +473,7 @@ rpoints_map_sa
 
 woody_map_sa + elevation_map_sa + rainfall_sa + dist2river_map_sa + 
   burnfreq_map_sa + fertility_map_sa + landform_hillmap_sa + copernicus_tree_cover_map_sa +
-  CoreProtectedAreas_map_sa + rpoints_map_sa + patchwork::plot_layout(ncol = 3)
+  CoreProtectedAreas_map_sa + rpoints_map_sa + NDVI_map_sa + patchwork::plot_layout(ncol = 3)
 ggsave("plots/composite_map_sa.png", width = 20, height = 10, dpi = 600)
 
 
