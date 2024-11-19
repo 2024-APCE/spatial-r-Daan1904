@@ -23,6 +23,7 @@ psych::pairs.panels(pointdata,stars = T, ellipses = F)
 browseURL("https://docs.google.com/presentation/d/1PB8rhbswyPew-FYULsw1pIl8Jyb1FFElKPf34DZrEY8/edit?usp=sharing")
 
 # Model 1: woody predicted by burnfreq and rainfall
+# Good labeling is to use the variable in the name which is predicted
 model_woody <- lm(woody ~  cec +burnfreq, 
              data = pointdata)
 summary(model_woody)
@@ -44,7 +45,8 @@ p2
 model_burnfreq_init <- glm(burnfreq ~ CorProtAr + rainfall, 
               family=poisson, 
               data = pointdata)
-# Calculate dispersion statistic
+# Calculate dispersion statistic -> states if Poisson distribution can be used or not.
+# For Poisson the mean and variance are equal. If variance is larger, model is overdispersed.
 dispersion_stat <- summary(model_burnfreq_init)$deviance / summary(model_burnfreq_init)$df.residual
 dispersion_stat
 # If 𝜙≈1 : No evidence of overdispersion → Poisson is appropriate. (mean≈variance)
@@ -55,6 +57,7 @@ model_burnfreq <- MASS::glm.nb(burnfreq ~ CorProtAr + rainfall,
               data = pointdata)
 summary(model_burnfreq)
 
+# Use glm.nb in the piecewise SEM, but for plotting use quasipoisson distribution
 p3<-ggplot(data=pointdata,aes(y=burnfreq,x=CorProtAr))+
   geom_jitter(width = 0.05, height = 0.1) +
   geom_smooth(method="glm",
@@ -63,6 +66,7 @@ p3<-ggplot(data=pointdata,aes(y=burnfreq,x=CorProtAr))+
               se=T)
 p3
 p4<-ggplot(data=pointdata,aes(y=burnfreq,x=rainfall))+
+  #geom_point() +
   geom_jitter(width = 0.05, height = 0.1) +
   geom_smooth(method="glm",
               method.args=list(family=quasipoisson),
@@ -72,7 +76,7 @@ p4
 
 # model_cec: predicted by rainfall
 
-model_cec <- glm(cec ~ rainfall + CorProtAr, 
+model_cec <- lm(cec ~ rainfall + CorProtAr, 
                       data = pointdata)
 summary(model_cec)
 
@@ -105,14 +109,14 @@ p7<-ggplot(data=pointdata,aes(y=CorProtAr,x=elevation))+
 p7
 
 # model_rainfall: rainfall predicted by elevation
-model_rainfall <- glm(rainfall ~ elevation, 
+model_rainfall <- lm(rainfall ~ elevation, 
               data = pointdata)
 summary(model_rainfall)
 
 p8<-ggplot(data=pointdata,aes(y=rainfall,x=elevation))+
   geom_point() +
   geom_smooth(method="lm",
-              formula= y~x,
+              formula= y ~ x,
               se=T)
 p8
 
@@ -145,7 +149,7 @@ summary(psem_model)
 # Best Practices:
 # - Hypothesize Carefully:
 #   Construct the initial model based on theoretical or empirical understanding.
-# - Evaluate d-Separation Results:
+# - Evaluate directed Separation Results:
 #   Add or adjust paths based on significant independence test results.
 # - Refit and Validate:
 #   Rerun the model after adjustments and recheck the Fisher’s C statistic and independence claims.
