@@ -88,7 +88,7 @@ plot(protected_areas, add = T)
 
 # set the limits of the map to show (xmin, xmax, ymin, ymax in utm36 coordinates)
 xlimits<-c(550000,900000)
-ylimits<-c(9600000,9950000)
+ylimits<-c(9600000,9850000)
 
 
 # plot the woody biomass map that you want to predict
@@ -99,18 +99,21 @@ woody_map <- ggplot() +
                        oob = squish,
                        name = "TBA/ha") +
   tidyterra::geom_spatvector(data = protected_areas,
-                             fill = NA, linewidth = 0.5) +
+                             fill = NA, linewidth = 0.75) +
   tidyterra::geom_spatvector(data = studyarea,
                              fill = NA, color = "red", linewidth = 1) +
   tidyterra::geom_spatvector(data = rivers,
                              color = "royalblue", linewidth = 0.75) +
   tidyterra::geom_spatvector(data = lakes,
                              fill = "blue") +
-  labs(title = "Woody biomass") +
+  labs(title = "Woody biomass as Total Basal Area") +
   coord_sf(xlimits, ylimits, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 24),      # Title size
+        legend.text = element_text(size = 24),     # Legend text size
+        legend.title = element_text(size = 20)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2.5)
 woody_map
 
 
@@ -178,7 +181,7 @@ saExt
 # crop the woody biomass to the extent of the studyarea
 woodymap_sa<-terra::crop(woodybiom, saExt)
 rainymap_sa<-terra::crop(rainfall, saExt)
-elevation_map_sa<-terra::crop(elevation, saExt)
+elevation_sa<-terra::crop(elevation, saExt)
 cec_map_sa <- terra::crop(fertility, saExt)
 
 
@@ -197,21 +200,26 @@ woody_map_sa <- ggplot() +
                              color = "royalblue", linewidth = 0.75) +
   tidyterra::geom_spatvector(data = lakes,
                              fill = "blue") +
-  labs(title = "Woody biomass") +
+  labs(title = "Woody biomass as Total Basal Area") +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 24),      # Title size
+        legend.text = element_text(size = 24),     # Legend text size
+        legend.title = element_text(size = 20)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2)
 woody_map_sa
 
 
 # make maps also for the other layers that you found
 elevation_map_sa <- ggplot() +
-  tidyterra::geom_spatraster(data = elevation) +
+  tidyterra::geom_spatraster(data = hillshade, alpha = 1.0) +
+  scale_fill_gradient(low = "black", high = "white", name = "Hillshade") +
+  tidyterra::geom_spatraster(data = elevation_sa) +
   scale_fill_gradientn(colors = terrain.colors(10),
                        limits = c(1000, 3250),
                        oob = squish,
-                       name = "meter") +
+                       name = "Meter") +
   tidyterra::geom_spatvector(data = protected_areas,
                              fill = NA, linewidth = 0.5) +
   tidyterra::geom_spatvector(data = studyarea,
@@ -223,8 +231,11 @@ elevation_map_sa <- ggplot() +
   labs(title = "Elevation") +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 24),      # Title size
+        legend.text = element_text(size = 24),     # Legend text size
+        legend.title = element_text(size = 20)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2.5)
 elevation_map_sa
 
 # plot rainfall map for the study area
@@ -474,7 +485,7 @@ rpoints_map_sa
 woody_map_sa + elevation_map_sa + rainfall_sa + dist2river_map_sa + 
   burnfreq_map_sa + fertility_map_sa + landform_hillmap_sa + copernicus_tree_cover_map_sa +
   CoreProtectedAreas_map_sa + rpoints_map_sa + NDVI_map_sa + patchwork::plot_layout(ncol = 3)
-ggsave("plots/composite_map_sa.png", width = 20, height = 10, dpi = 600)
+#ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/APCE2024/spatial-r-Daan1904/plots/composite_map_sa.png", width = 14.64, height = 12.51, dpi = 600)
 
 
 #########################
@@ -528,7 +539,8 @@ pointdata<-cbind(dist2river_points[,2],elevation_points[,2],
                  landform_points[,2], treecover_points[,2],
                  NDVI_points[,2], woody_points[,2]) |>
   as_tibble()
-pointdata2 <- pointdata[complete.cases(pointdata),]
+pointdata2 <- pointdata[complete.cases(pointdata),] |>
+  dplyr::filter(woody<75)
 pointdata2
 
 getwd()
@@ -547,6 +559,7 @@ psych::pairs.panels(
   lm = TRUE,                # Add linear regression lines
   stars=T
 )
+
 
 # make long format
 names(pointdata2)
@@ -592,12 +605,21 @@ title(ylab=ylabel)
 vegan::ordisurf(pca_result, pointdata2$woody, add = TRUE, col = "green4")
 
 
+#######################################
+#Plots for the report
+# Figure 1: overview image using elevation and hillshade of full area / study area map of same parameters
+fig1 <- woody_map + elevation_map_sa + patchwork::plot_layout(ncol = 2)
+fig1
+ggsave("figure1_report_APCE.png", width = 14.64, height = 12.51, dpi = 600)
+
+# Figure 2: Study area overview of woody biomass
+fig2 <- woody_map_sa
+fig2
+ggsave("figure2_report_APCE.png", width = 14.64, height = 12.51, dpi = 600)
 
 
 
-
-
-
+##########################################
 # create 500 random points in our study area
 
 

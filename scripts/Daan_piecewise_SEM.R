@@ -3,10 +3,10 @@
 library(piecewiseSEM)
 
 # read the pointdata
-pointdata_init<-read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSgbmMwgqYtc_Vac7djGpaQucleD4ZsqyiDMDFHrboEbxqJi4W1LvyJDclFl-WlPxcu7x3HQ8guG2NF/pub?gid=0&single=true&output=csv")
+pointdata_init<-read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVA41JED_q7nrZmtsiU5U6FGjUya9FgRL4muSNTdvNmgfzqbgB7WpclghiuUHnyEoiyWHZgdrXcbT/pub?gid=452061108&single=true&output=csv")
 pointdata <- pointdata_init |> # Remove rows with missing values
   na.omit() |>   # keep complete cases
-  dplyr:: filter(woody>0, woody<20)   # remove 2 extreme values and avoid interpolated negative values
+  dplyr:: filter(woody<75)   # remove 2 extreme values
 
 # note that you should not standardize your data for a Piecewise SEM as then e.g. logistic regression cannot be used
 
