@@ -6,7 +6,9 @@ library(piecewiseSEM)
 pointdata_init<-read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVA41JED_q7nrZmtsiU5U6FGjUya9FgRL4muSNTdvNmgfzqbgB7WpclghiuUHnyEoiyWHZgdrXcbT/pub?gid=452061108&single=true&output=csv")
 pointdata <- pointdata_init |> # Remove rows with missing values
   na.omit() |>   # keep complete cases
+  dplyr::select(woody, cec, NDVI, rainfall, dist2river, elevation, hills) |>  # select the variables of interest
   dplyr:: filter(woody<75)   # remove 2 extreme values
+pointdata
 
 # note that you should not standardize your data for a Piecewise SEM as then e.g. logistic regression cannot be used
 
@@ -19,123 +21,136 @@ psych::pairs.panels(pointdata,stars = T, ellipses = F)
 
 
 # Define the models
-# I started from this initially hypothesized causal scheme, my model 1)
-browseURL("https://docs.google.com/presentation/d/1PB8rhbswyPew-FYULsw1pIl8Jyb1FFElKPf34DZrEY8/edit?usp=sharing")
 
-# Model 1: woody predicted by burnfreq and rainfall
+# model_woody: woody predicted by cec, NDVI, rainfall and dist2river
 # Good labeling is to use the variable in the name which is predicted
-model_woody <- lm(woody ~  cec +burnfreq, 
+model_woody <- glm(woody ~  cec + NDVI + rainfall + dist2river + elevation,
                   data = pointdata)
 summary(model_woody)
-p1<-ggplot(data=pointdata,aes(x=burnfreq,y=woody))+
+p1<-ggplot(data=pointdata,aes(x=cec,y=woody))+
   geom_point() +
-  geom_smooth(method="lm",
+  geom_smooth(method="glm",
               formula= y~x,
               se=T)
 p1
-p2<-ggplot(data=pointdata,aes(x=cec,y=woody))+
+p2<-ggplot(data=pointdata,aes(x=NDVI,y=woody))+
   geom_point() +
   geom_smooth(method="lm",
               #              method.args=list(family=Gamma(link="log")),
               formula= y~x,
               se=T) 
 p2
-
-# Model_burnfreq: burning frequency predicted by Core Protected Areas and Rainfall
-model_burnfreq_init <- glm(burnfreq ~ CorProtAr + rainfall, 
-                           family=poisson, 
-                           data = pointdata)
-# Calculate dispersion statistic -> states if Poisson distribution can be used or not.
-# For Poisson the mean and variance are equal. If variance is larger, model is overdispersed.
-dispersion_stat <- summary(model_burnfreq_init)$deviance / summary(model_burnfreq_init)$df.residual
-dispersion_stat
-# If 𝜙≈1 : No evidence of overdispersion → Poisson is appropriate. (mean≈variance)
-# If 𝜙>1 : Overdispersion is present → Consider quasi-Poisson or negative binomial.
-# If 𝜙<1 : Underdispersion (less common) → Investigate the data further.
-library(MASS)
-model_burnfreq <- MASS::glm.nb(burnfreq ~ CorProtAr + rainfall, 
-                               data = pointdata)
-summary(model_burnfreq)
-
-# Use glm.nb in the piecewise SEM, but for plotting use quasipoisson distribution
-p3<-ggplot(data=pointdata,aes(y=burnfreq,x=CorProtAr))+
-  geom_jitter(width = 0.05, height = 0.1) +
-  geom_smooth(method="glm",
-              method.args=list(family=quasipoisson),  # close to glm.nb
+p3<-ggplot(data=pointdata,aes(x=rainfall,y=woody))+
+  geom_point() +
+  geom_smooth(method="lm",
               formula= y~x,
               se=T)
 p3
-p4<-ggplot(data=pointdata,aes(y=burnfreq,x=rainfall))+
-  #geom_point() +
-  geom_jitter(width = 0.05, height = 0.1) +
-  geom_smooth(method="glm",
-              method.args=list(family=quasipoisson),
+p4<-ggplot(data=pointdata,aes(x=dist2river,y=woody))+
+  geom_point() +
+  geom_smooth(method="lm",
               formula= y~x,
               se=T)
 p4
 
 # model_cec: predicted by rainfall
-
-model_cec <- lm(cec ~ rainfall + CorProtAr, 
+model_cec <- lm(cec ~ elevation, 
                 data = pointdata)
 summary(model_cec)
 
-p5<-ggplot(data=pointdata,aes(y=cec,x=rainfall))+
+p5<-ggplot(data=pointdata,aes(y=cec,x=elevation))+
   geom_point() +
   geom_smooth(method="lm",
               formula= y~x,
               se=T)
 p5
 
-p6<-ggplot(data=pointdata,aes(y=cec,x=CorProtAr))+
+# model_NDVI:  predicted by cec, elevation, rainfall and dist2river
+model_NDVI <-lm(NDVI ~ cec + elevation + rainfall + dist2river,
+                      data=pointdata)
+summary(model_NDVI)
+p6<-ggplot(data=pointdata,aes(x=elevation, y=NDVI))+
+  geom_point() +
+  geom_smooth(method="lm",
+              formula= y~poly(x,2),
+              se=T)
+p6
+p7<-ggplot(data=pointdata,aes(y=NDVI,x=cec))+
   geom_point() +
   geom_smooth(method="lm",
               formula= y~x,
               se=T)
-p6
-
-
-# model_CorProtAra:  predicted by elevation
-model_CorProtAr <-glm(CorProtAr~elevation,
-                      family=binomial,
-                      data=pointdata)
-summary(model_CorProtAr)
-p7<-ggplot(data=pointdata,aes(y=CorProtAr,x=elevation))+
-  geom_jitter(height = 0.02) +
-  geom_smooth(method="glm",
-              method.args=list(family=binomial),
+p7
+p8<-ggplot(data=pointdata,aes(y=NDVI,x=rainfall))+
+  geom_point() +
+  geom_smooth(method="lm",
               formula= y~x,
               se=T)
-p7
+p8
+p9<-ggplot(data=pointdata,aes(y=NDVI,x=dist2river))+
+  geom_point() +
+  geom_smooth(method="lm",
+              formula= y~x,
+              se=T)
+p9
 
 # model_rainfall: rainfall predicted by elevation
 model_rainfall <- lm(rainfall ~ elevation, 
                      data = pointdata)
 summary(model_rainfall)
 
-p8<-ggplot(data=pointdata,aes(y=rainfall,x=elevation))+
+p10<-ggplot(data=pointdata,aes(y=rainfall,x=elevation))+
   geom_point() +
   geom_smooth(method="lm",
               formula= y ~ x,
               se=T)
-p8
+p10
+
+# model_dist2river: dist2river predicted by elevation and hills
+model_dist2river <- lm(dist2river ~ elevation + hills + cec, 
+                       data = pointdata)
+summary(model_dist2river)
+
+p11<-ggplot(data=pointdata,aes(y=dist2river,x=elevation))+
+  geom_point() +
+  geom_smooth(method="lm",
+              formula= y ~ x,
+              se=T)
+p11
+p12<-ggplot(data=pointdata,aes(y=dist2river,x=hills))+
+  geom_point() +
+  geom_smooth(method="lm",
+              formula= y ~ x,
+              se=T)
+p12
+
+# model_elev_hills: correlation between elevation and hills
+model_elev_hills <- glm(hills ~ elevation, family = binomial,
+                       data = pointdata)
+summary(model_elev_hills)
+
+p13<-ggplot(data=pointdata,aes(y=hills ,x=elevation))+
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))
+p13
 
 # combine the figures
 library(patchwork)
-allplots<-p1+p2+p3+p4+p5+p6+p7+
+allplots<-p1+p2+p3+p4+p5+p6+p7+p8+p9+p10+p11+p12+p13+
   patchwork::plot_layout(ncol=3) +
   patchwork::plot_annotation(title="Relations in model 1")
 allplots
 
 ####### Combine all models into a single piecewise SEM
 psem_model <- piecewiseSEM::psem(model_woody,
-                                 model_burnfreq,
                                  model_cec,
-                                 model_CorProtAr,
-                                 model_rainfall)
+                                 model_NDVI,
+                                 model_rainfall,
+                                 model_dist2river,
+                                 model_elev_hills)
 
 # Summarize the SEM results
-summary(psem_model)
+summary(psem_model, conserve = T)
 
 
 

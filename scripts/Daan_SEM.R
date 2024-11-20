@@ -71,15 +71,32 @@ woody_model3 <- "woody ~ NDVI + cec + dist2river + rainfall
                 rainfall ~ elevation
                 elevation ~~ hills"
 
+# Model 4 - CEC influenced by elevation and no burnfreq, no cec on woody
+woody_model4 <- "woody ~ NDVI + dist2river + rainfall
+                dist2river ~ elevation + hills
+                cec ~ elevation
+                NDVI ~ rainfall + cec + dist2river+ elevation
+                rainfall ~ elevation
+                elevation ~~ hills"
+
 woody_model2
 woody_fit1 <- lavaan::sem(woody_model1, data = SEMdatastd)
 woody_fit2 <- lavaan::sem(woody_model2, data = SEMdatastd)
 woody_fit3 <- lavaan::sem(woody_model3, data = SEMdatastd)
+woody_fit4 <- lavaan::sem(woody_model4, data = SEMdatastd)
 
 # show the model results
-summary(woody_fit3, standardized = T, fit.measures = T, rsquare = T)
+summary(woody_fit4, standardized = T, fit.measures = T, rsquare = T)
 # goodness of fit (should be >0.9): CFI and TLI
-# CFI = 0.911 / TLI = 0.793
 # badness of fit: ( should be <0.1): RMSEA, SRMR
-# RMSEA = 0.191 / SRMR = 0.047
+
+#install.packages("lavaanPlot")
+library(lavaanPlot)
+lavaanPlot::lavaanPlot(woody_fit4,
+                       coefs = T,
+                       stand= T,
+                       graph_options=list(rankdir="LR"),
+                       stars="regress")
+
+
 

@@ -144,9 +144,9 @@ rainy_map
 elevation_map <- ggplot() +
   tidyterra::geom_spatraster(data = elevation) +
   scale_fill_gradientn(colors = terrain.colors(10),
-                       limits = c(500, 2500),
+                       limits = c(1000, 3250),
                        oob = squish,
-                       name = "meter") +
+                       name = "Meter") +
   tidyterra::geom_spatvector(data = protected_areas,
                              fill = NA, linewidth = 0.5) +
   tidyterra::geom_spatvector(data = studyarea,
@@ -155,11 +155,14 @@ elevation_map <- ggplot() +
                              color = "royalblue", linewidth = 0.75) +
   tidyterra::geom_spatvector(data = lakes,
                              fill = "blue") +
-  labs(title = "Elevation") +
+  labs(title = "Elevation of GSME") +
   coord_sf(xlimits, ylimits, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 24),      # Title size
+        legend.text = element_text(size = 24),     # Legend text size
+        legend.title = element_text(size = 20)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2.5)
 elevation_map
 
 
@@ -204,10 +207,10 @@ woody_map_sa <- ggplot() +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size = 24),      # Title size
-        legend.text = element_text(size = 24),     # Legend text size
-        legend.title = element_text(size = 20)) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2)
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 1.5)
 woody_map_sa
 
 
@@ -232,10 +235,10 @@ elevation_map_sa <- ggplot() +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size = 24),      # Title size
-        legend.text = element_text(size = 24),     # Legend text size
-        legend.title = element_text(size = 20)) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 2.5)
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 1.5)
 elevation_map_sa
 
 # plot rainfall map for the study area
@@ -251,7 +254,7 @@ rainfall_sa <- ggplot() +
   scale_fill_gradientn(colors = pal_zissou1,
                        limits = c(400, 1200),
                        oob = squish,
-                       name = "mm") +
+                       name = "mm/year") +
   tidyterra::geom_spatvector(data = protected_areas,
                              fill = NA, linewidth = 0.5) +
   tidyterra::geom_spatvector(data = studyarea,
@@ -263,8 +266,11 @@ rainfall_sa <- ggplot() +
   labs(title = "Average annual rainfall") +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 1.5)
 rainfall_sa
 
 dist2river_map_sa<-ggplot() +
@@ -272,7 +278,7 @@ dist2river_map_sa<-ggplot() +
   scale_fill_gradientn(colours=topo.colors(6),
                        limits=c(0,17000),
                        oob=squish,
-                       name="meters") +
+                       name="Meters") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
@@ -285,8 +291,11 @@ dist2river_map_sa<-ggplot() +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2, text_cex = 1.5)
 dist2river_map_sa
 
 # burning frequency map from 2001 - 2016
@@ -295,7 +304,7 @@ burnfreq_map_sa<-ggplot() +
   scale_fill_gradientn(colours=pal_zissou2,
                        limits=c(0,5),
                        oob=squish,
-                       name="years\nburned") +
+                       name="Number of fires") +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
@@ -304,12 +313,15 @@ burnfreq_map_sa<-ggplot() +
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="n years burned") +
+  labs(title="Fires 2001-2016") +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2, text_cex = 1.5)
 burnfreq_map_sa
 
 hist(cec_map_sa)
@@ -330,8 +342,11 @@ fertility_map_sa <- ggplot() +
   labs(title = "Soil fertility (CEC)") +
   coord_sf(xlimits, ylimits, expand = F, datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location = "bl", width_hint = 0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location = "bl", width_hint = 0.2, text_cex = 1.5)
 fertility_map_sa
 
 landform_all_sa <- terra::as.factor(landform_sa)
@@ -370,7 +385,7 @@ landform_map_sa
 landform_hillmap_sa<-ggplot() +
   tidyterra::geom_spatraster(data=as.factor(landform_hills_sa)) +
   scale_fill_manual(values=c("black","orange"),
-                    labels=c("valleys\nand\nplains","hills")) +
+                    labels=c("Valleys\nand\nplains","Hills")) +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.7) +
   tidyterra::geom_spatvector(data=studyarea,
@@ -379,12 +394,15 @@ landform_hillmap_sa<-ggplot() +
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="Landform") +
+  labs(title="Landform type") +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2, text_cex = 1.5)
 landform_hillmap_sa
 
 copernicus_tree_cover_map_sa <- ggplot() +
@@ -392,7 +410,7 @@ copernicus_tree_cover_map_sa <- ggplot() +
   scale_fill_gradientn(colours=RColorBrewer::brewer.pal(n = 9, name = "Greens"),
                        limits=c(0,100),
                        oob=squish,
-                       name="percentage %") +
+                       name="Percentage cover") +
   tidyterra::geom_spatvector(data=protected_areas,color="#4D4D4D",
                              fill=NA, linewidth=0.5) +
   tidyterra::geom_spatvector(data=lakes,
@@ -405,8 +423,11 @@ copernicus_tree_cover_map_sa <- ggplot() +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl", width_hint = 0.5)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl", width_hint = 0.5, text_cex = 1.5)
 copernicus_tree_cover_map_sa
 
 #NDVI
@@ -428,8 +449,11 @@ NDVI_map_sa <- ggplot() +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl", width_hint = 0.5)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl", width_hint = 0.5, text_cex = 1.5)
 NDVI_map_sa
 
 # core_protected_areas  map 
@@ -441,7 +465,7 @@ CoreProtectedAreas_sa <- r |> #  replace NA by 0
 CoreProtectedAreas_map_sa<-ggplot() +
   tidyterra::geom_spatraster(data=as.factor(CoreProtectedAreas_sa)) +
   scale_fill_manual(values=c("grey","lightgreen"),
-                    labels=c("no","yes")) +
+                    labels=c("No","Yes")) +
   tidyterra::geom_spatvector(data=protected_areas,
                              fill=NA,linewidth=0.5) +
   tidyterra::geom_spatvector(data=studyarea,
@@ -454,8 +478,11 @@ CoreProtectedAreas_map_sa<-ggplot() +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
-  ggspatial::annotation_scale(location="bl",width_hint=0.2)
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
+  ggspatial::annotation_scale(location="bl",width_hint=0.2, text_cex = 1.5)
 CoreProtectedAreas_map_sa
 
 # create 250 random points in your study area
@@ -473,19 +500,25 @@ rpoints_map_sa<-ggplot() +
                              fill="lightblue",linewidth=0.5) +
   tidyterra::geom_spatvector(data=rivers,
                              col="blue",linewidth=0.5) +
-  labs(title="250 random points") +
+  labs(title="250 random study points") +
   coord_sf(xlimits,ylimits,expand=F,
            datum = sf::st_crs(32736)) +
   theme(axis.text = element_blank(),
-        axis.ticks = element_blank()) +
+        axis.ticks = element_blank(),
+        plot.title = element_text(size = 14),      # Title size
+        legend.text = element_text(size = 12),     # Legend text size
+        legend.title = element_text(size = 12)) +
   ggspatial::annotation_scale(location="bl",width_hint=0.2)
 rpoints_map_sa
 
 
-woody_map_sa + elevation_map_sa + rainfall_sa + dist2river_map_sa + 
-  burnfreq_map_sa + fertility_map_sa + landform_hillmap_sa + copernicus_tree_cover_map_sa +
-  CoreProtectedAreas_map_sa + rpoints_map_sa + NDVI_map_sa + patchwork::plot_layout(ncol = 3)
-#ggsave("C:/Users/daank/OneDrive - University of Twente/Documents/Github/APCE2024/spatial-r-Daan1904/plots/composite_map_sa.png", width = 14.64, height = 12.51, dpi = 600)
+sa_overview <- elevation_map_sa + rainfall_sa + 
+               dist2river_map_sa + fertility_map_sa +
+               landform_hillmap_sa + burnfreq_map_sa +
+               NDVI_map_sa + copernicus_tree_cover_map_sa +
+               CoreProtectedAreas_map_sa + rpoints_map_sa +
+               patchwork::plot_layout(ncol = 2)
+sa_overview
 
 
 #########################
@@ -557,8 +590,11 @@ psych::pairs.panels(
   density = TRUE,          # Add density plots
   ellipses = F,         # Add correlation ellipses
   lm = TRUE,                # Add linear regression lines
-  stars=T
-)
+  stars=T,
+  cex.labels = 1.3,  # Increase axis label size
+  cex.cor = 1,
+  cex.axis = 1.5)   # Increase correlation text size)
+mtext("Pairs-panel plot", side = 3, line = 5, cex = 1.5, adj = 0)
 
 
 # make long format
@@ -608,7 +644,7 @@ vegan::ordisurf(pca_result, pointdata2$woody, add = TRUE, col = "green4")
 #######################################
 #Plots for the report
 # Figure 1: overview image using elevation and hillshade of full area / study area map of same parameters
-fig1 <- woody_map + elevation_map_sa + patchwork::plot_layout(ncol = 2)
+fig1 <- elevation_map + elevation_map_sa + patchwork::plot_layout(ncol = 2)
 fig1
 ggsave("figure1_report_APCE.png", width = 14.64, height = 12.51, dpi = 600)
 
@@ -617,6 +653,10 @@ fig2 <- woody_map_sa
 fig2
 ggsave("figure2_report_APCE.png", width = 14.64, height = 12.51, dpi = 600)
 
+# Figure 3: Study area overview of all potential predictors
+fig3 <- sa_overview
+fig3
+ggsave("figure3_report_APCE.png", width = 14.64, height = 12.51, dpi = 600)
 
 
 ##########################################
